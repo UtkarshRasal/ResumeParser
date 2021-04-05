@@ -1,0 +1,218 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<title>Resume</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.js"></script>
+
+
+<style>
+  html,
+  body,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Roboto", sans-serif
+  }
+
+  .btn {
+    background-color: DodgerBlue;
+    border: none;
+    color: white;
+    padding: 12px 30px;
+    cursor: pointer;
+    font-size: 20px;
+  }
+
+  .tags {
+    border: 2px solid rgb(209, 202, 202);
+    background: rgb(231, 227, 227);
+    border-radius: 10px;
+    padding: 5px;
+    margin: 5px;
+    display: inline-block;
+  }
+</style>
+
+<body class="w3-light-grey">
+
+  <!-- Page Container -->
+  <div class="w3-content w3-margin-top" style="max-width:1400px;">
+
+    <!-- The Grid -->
+    <div class="w3-row-padding">
+
+      <!-- Left Column -->
+      <div class="w3-third">
+
+        <div class="w3-white w3-text-grey w3-card-4">
+          <div class="w3-display-container">
+            <div class="w3-large">
+              {% for i,k in data.resume_field_data.items %}
+              {% if i == "name" %}
+              <h2>{{k}}</h2> <br />
+              {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          <div class="w3-container">
+            <p><i class="fa fa-envelope fa-fw w3-margin-right w3-large w3-text-teal"></i>
+              {% for i,k in data.resume_field_data.items %}
+              {% if i == "email" %}
+              {{k}}
+              {% endif %}
+              {% endfor %}
+            </p>
+            <p><i class="fa fa-phone fa-fw w3-margin-right w3-large w3-text-teal"></i>1224435534</p>
+            <hr>
+
+            <p class="w3-large"><b><i class="fa fa-asterisk fa-fw w3-margin-right w3-text-teal"></i>Skills</b></p>
+            {% for i,k in data.resume_field_data.items %}
+            {% if i == "skills" %}
+            {% for skill in k %}
+            <span class='tags'>{{skill}}</span>
+            {% endfor %}
+            {% endif %}
+            {% endfor %}
+            <br>
+            <hr>
+          </div>
+        </div><br>
+
+        <!-- End Left Column -->
+      </div>
+
+      <!-- Right Column -->
+      <div class="w3-twothird" id='div1'>
+        <form id='post-form'>
+          {% csrf_token %}
+          {{form}}
+          <input type="hidden" value={{data.uid}} id="uid" />
+          <div class="w3-container w3-card w3-white w3-margin-bottom">
+            <h2 class="w3-text-grey w3-padding-16"><i
+                class="fa fa-suitcase fa-fw w3-margin-right w3-xxlarge w3-text-teal"></i>Work Experience</h2>
+            <div class="w3-container">
+              <h5 class="w3-opacity"><b>Total Experience:</b> {{data.experience_period}}</h5>
+              <hr>
+            </div>
+            <div class="w3-container" contenteditable="True">
+
+              <p id='exp' class='exp'>{{data.experience | safe}}</p>
+
+              <hr>
+            </div>
+          </div>
+
+          <div class="w3-container w3-card w3-white">
+            <h2 class="w3-text-grey w3-padding-16">
+              <i class="fa fa-certificate fa-fw w3-margin-right w3-xxlarge w3-text-teal"></i>Projects
+            </h2>
+            <div class="w3-container" contenteditable="True">
+              <p id='proj' class='proj'>
+                {{data.projects | safe }}
+              </p>
+              <hr>
+            </div>
+          </div>
+      </div>
+      <!-- End Right Column -->
+      <div class="cotainer"></div>
+      <br>
+      <button type='submit' id="save" class="btn">Save Resume</button>
+
+      <button type='button' id="resumeid" class="btn"><a href= {{data.absurl}}>Download Resume</a></button>
+      <br>
+      <br>
+      </form>
+    </div>
+    <!-- End Grid -->
+
+  </div>
+
+  <!-- End Page Container -->
+  </div>
+
+</body>
+
+<script>
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+
+  $(document).on("submit", "#post-form", function (e) {
+    e.preventDefault();
+    const csrftoken = getCookie('csrftoken');
+    // var $crf_token = $('[name="csrfmiddlewaretoken"]').attr('value');
+    var uid = document.getElementById("uid").value;
+    debugger
+    var myKeyVals = {
+        experience: $('#exp').text(),
+        projects: '',
+        csrfmiddlewaretoken: csrftoken
+      };
+
+      var arrExp = '';
+      $('.exp').each(function(){
+        arrExp += $(this).html();
+      })
+      
+      var arrProj = '';
+      $('.proj').each(function(){
+        arrProj += $(this).html();
+      })
+      
+      console.log('arrExp', arrExp);
+      console.log('arrProj', arrProj);
+      myKeyVals.experience = arrExp;
+      myKeyVals.projects = arrProj;
+      $.ajax({
+      type: 'POST',
+      url: 'http://localhost:8000/resume/' + uid,
+      data: myKeyVals,
+      dataType: "text",
+      success: function(resultData) { alert("Save Complete") },
+      error: function(resultData) { 
+        debugger
+        alert("Error") 
+      
+      }
+});
+
+    // $.ajax({
+    //   type: "POST",
+    //   url: 'http://localhost:8000' + '/resume/' + uid,
+    //   headers:{"X-CSRFToken": $crf_token},
+    //   data: body,
+    //   dataType: "json",
+    //   success: function (response) {
+    //     alert('Saved Resume')
+    //   }, error: function (response) {
+    //     console.log(response);
+    //   }
+    // });
+  });
+</script>
+
+</html>
