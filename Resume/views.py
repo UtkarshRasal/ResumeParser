@@ -138,10 +138,12 @@ class DownloadView(APIView):
 
 		absurl = 'http://localhost:8000/resume-user/' + pk + '/'
 		image_path = 'downloaded_Resume/Image_Files/' + name + '.jpeg'
-		imgkit.from_url(absurl, image_path, options=options)
-
-		pdf_path = 'downloaded_Resume/PDf_files/' + name + '.pdf' 
-
+		pdf_path = 'downloaded_Resume/PDf_files/' + name + '.pdf'
+		
+		#convert from url to image
+		imgkit.from_url(absurl, image_path, options=options) 
+		
+		#convert from image to pdf
 		subprocess.run(["img2pdf", image_path, "-o", pdf_path])
 
 	
